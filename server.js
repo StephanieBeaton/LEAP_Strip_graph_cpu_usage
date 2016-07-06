@@ -1,20 +1,48 @@
-var path   =   require("path");
-var fs    =  require("fs");
-var http  =  require("http");
-var express  =  require("express");
-var app  =  express();
 
-//capture logs in the console
-app.use(express.logger("dev"));
 
-//serve static files - blank in the quotes means server.js is in the same folder as your HTML files.
-app.use(express.static(__dirname + ''));
+var app = require('express')();
+var http = require('http').Server(app);
 
-//404 error
-app.use(function(req, res, next) {
-  res.send(404, "file not found");
+// initialize a new instance of socket.io by passing the http server object
+var io = require('socket.io')(http);
+
+var os = require('os');
+
+app.get('/', function(req, res){
+  res.sendfile(__dirname + '/index.html');
 });
 
-//start server
-app.listen(80);
-console.log("listening on port 80");
+function randomIntFromInterval(min,max){
+   return Math.floor(Math.random()*(max-min+min));
+}
+
+// listen on the connection event for incoming sockets
+// ... and log them to the console
+io.on('connection', function(socket){
+  console.log('a user connected');
+  socket.on('mymessage', function(msg){
+    console.log('mymessage: ' + msg);
+  });
+  socket.emit('mymessage', 'server sent this message to the browser');
+  //var cpus = os.cpus();
+  //var message = JSON.stringify(cpus);
+  //console.log("cpus");
+  //console.log(message);
+  // var cpuUsage = randomIntFromInterval(1,100);
+  //socket.emit('cpuinfo', cpuUsage.toString());
+
+  setInterval(function(){
+    var cpuUsage = randomIntFromInterval(1,100);
+    socket.emit('cpuinfo', cpuUsage.toString());
+  }, 3000);
+
+  socket.on('disconnect', function(msg){
+    console.log('user disconnected');
+  });
+});
+
+http.listen(80, function(){
+  console.log('listening on *:80');
+});
+
+

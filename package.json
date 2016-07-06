@@ -1,9 +1,11 @@
 {
-  "name": "a-test-app-no-spaces",
-  "description": "spaces are okay here",
+  "name": "socket-chat-example",
+  "description": "testing socket io",
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "3.x"
+    "express": "^4.8.0",
+    "os": "^0.1.1",
+    "socket.io": "^1.4.8"
   }
 }

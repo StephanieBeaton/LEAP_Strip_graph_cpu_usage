@@ -18,11 +18,54 @@
     <![endif]-->
   </head>
   <body>
-    <h1>Hello, world!</h1>
+    <p id="mymessage">Hello, world!</p>
+    <svg viewBox="0 0 500 100" style="border: 1px solid black" class="chart">
+      <polyline
+         fill="none"
+         stroke="#0074d9"
+         stroke-width="3"
+         points="
+           0,120
+           20,60
+           40,80
+           60,20"/>
+    </svg>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="js/bootstrap.min.js"></script>
-  </body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io();
+      var cpuinfo_previous = {};
+      socket.emit('mymessage', 'browser sent this message to the server.');
+      socket.on('cpuinfo', function(cpuinfo){
+        console.log("cpuinfo: " + cpuinfo);
+        //var cpus = JSON.parse(cpuinfo);
+        //console.log(cpus);
+        var polyline = document.querySelector("polyline");
+        var points = polyline.getAttribute("points"); 
+        console.log("points: " + points);
+        // get the last x position from the end of point
+        var firstIndex = points.lastIndexOf("\n") + 1;
+        console.log("firstIndex = " + firstIndex);
+        var lastIndex = points.indexOf(",", firstIndex);
+        console.log("lastIndex = " + lastIndex);
+        var x = points.substring(firstIndex, lastIndex);
+        console.log("x = " + x);
+        x = parseInt(x) + 30;        
+        points = points + "\n" + x + ", " + cpuinfo;
+        console.log("points = " + points);       
+        polyline.setAttribute("points", points);
+        var element = document.getElementById("mymessage").innerHTML = "<p>" + cpuinfo + "</p>";
+      });
+
+      socket.on('mymessage', function(msg){
+        console.log("mymessage: " + msg);
+        var element = document.getElementById("mymessage").innerHTML = "<p>" + msg + "</p>";
+      });
+
+   </script>
+</body>
 </html>
